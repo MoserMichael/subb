@@ -6,6 +6,11 @@ I think it is not very well suitable for a quick script.
 
 That's why I often find myself writing a wrapper object for the submodule process. Now the ```subb``` package is supposed to be a general wrapper that would cover most use cases.
 
+## install it
+
+```pip3 install subb```
+
+
 ## The interface
 
 The ```subb.RunCommand``` class is exported,  The ```RunCommand.run``` method runs one process, and waits for it to terminate. Upon completion of the run, you have the following members set: ```output``` - standart output, ```error``` standard error, ```status``` the ```status.exit_code``` is the status of the command.
@@ -14,9 +19,95 @@ The ```subb.RunCommand``` constructor is receiving options for each call to the 
 
 See the [test](https://github.com/MoserMichael/subby/blob/master/test.py) for example usages
 
-## install it
 
-```pip3 install subb```
+Now some examples:
+
+### Basic test 
+
+This shows the standard output of the commands, now optional argument ```trace_on=subb.RunCommand.TRACE_WITH_TIMESTAMP``` means that the command and its output are printed to standard error, just like  ```set -x``` in bash.
+
+```
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_WITH_TIMESTAMP)
+
+        cmd.run("ls -al")
+
+        print("Command standard output: ", cmd.output)
+
+        cmd.run("openssl rand -hex 9")
+
+        print("Command standard output: ", cmd.output)
+
+        cmd.run("git ls-files")
+
+```
+
+Option exit_on_error means that if the status of a command is not zero, then call ```sys.exit```, just like shell's ```set -e```
+
+```
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, exit_on_error = True)
+
+        got_exit = False
+        try:
+            cmd.run("false")
+        except SystemExit as ex:
+            print("caught SystemExit from run('false')", str(ex))
+            got_exit = True
+
+        self.assertTrue(got_exit)
+```
+
+Option ```convert_to_text``` is by default on, the output is converted to text (utf-8) if it is set to ```None```, then you get binary output
+
+```
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, exit_on_error = True, convert_to_text = None)
+
+        cmd.run("openssl rand 16")
+
+        self.assertTrue( isinstance(cmd.output, bytes), "hex output expected")
+
+```
+
+The ```use_shell``` option is off by default, if you set it then the shell will be used to run the command
+
+```
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, use_shell = True, exit_on_error = True)
+
+        cmd.run("""find . -name "*.py" | grep -c subby.py""")
+
+        print("shell output: ", cmd.output)
+```
+
+By default there is no timeout, but you can set one with the ```timeout_sec``` option
+
+```
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_WITH_TIMESTAMP, timeout_sec=7)
+
+        got_timeout = False
+        try:
+            cmd.run("python3 stuck.py")
+        except subprocess.TimeoutExpired as exc:
+            print("got timeout exception: ", exc)
+            got_timeout = True
+
+        self.assertTrue(got_timeout)
+```
+
+
+Platform specific options held in either ```subb.PlatformOptionsPosix``` or ```subb.PlatformOptionsWindows``` (arguments to constructors are just like the platform options is ```subprocess.Popen```, and passed via the ```platform_option``` option in RunCommand constructor.
+
+
+```
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_WITH_TIMESTAMP, timeout_sec=7)
+
+        got_timeout = False
+        try:
+            cmd.run("python3 stuck.py")
+        except subprocess.TimeoutExpired as exc:
+            print("got timeout exception: ", exc)
+            got_timeout = True
+
+        self.assertTrue(got_timeout)
+```
 
 
 

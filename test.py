@@ -29,7 +29,11 @@ class TestSubb(unittest.TestCase):
 
         cmd.run("ls -al")
 
+        print("Command standard output: ", cmd.output)
+
         cmd.run("openssl rand -hex 9")
+
+        print("Command standard output: ", cmd.output)
 
         cmd.run("git ls-files")
 
@@ -83,7 +87,7 @@ class TestSubb(unittest.TestCase):
 
         cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, use_shell = True, exit_on_error = True)
 
-        cmd.run("""find . -name "*.py" | grep -c subby.py""")
+        cmd.run("""ls *.py | grep -c test.py""")
 
         print("shell output: ", cmd.output)
         self.assertTrue( cmd.output.rstrip() == "1" )
