@@ -1,16 +1,42 @@
 import shlex
 import subprocess
+import types
 from datetime import datetime
 import sys
 
+class KwArgsForwarder:
+
+    def __init__(self, map_arg_name_to_type):
+        self.map_arg_name_to_type = map_arg_name_to_type
+        self.args = {}
+
+
+    def check_params(self, **kwargs):
+        for param_name, param_value in kwargs.items():
+            if not param_name in self.map_arg_name_to_type:
+                raise ValueError(f"parameter name {param_name} is not defined")
+            expected_type = self.map_arg_name_to_type[param_name]
+            if not isinstance( param_value, expected_type):
+                raise TypeError(f"parameter {param_name} not of expected type {str(expected_type)}")
+
+        self.args = {}
+        for key, value in kwargs.items():
+            self.args[key] = value
+
 class PlatformOptionsWindows:
-    pass
+    def __init__(self, **kwargs):
+        self.forwarder = KwArgsForwarder({ 'startupinfo': type(subprocess.STARTUPINFO), 'creationflags': type(int) })
+        self.forwarder.check_params(**kwargs)
 
 class PlatformOptionsPosix:
-    pass
+    def __init__(self,**kwargs):
+        # preexec_fn - no longer supported in python 3.8
+        #self.forwarder = KwArgsForwarder({ 'preexec_fn' : types.FunctionType,  'restore_signals': type(bool), 'start_new_session': type(bool), 'group' : type(str), 'user' : type(str),  })
+        self.forwarder = KwArgsForwarder({ 'pass_fds' : type(()), 'restore_signals': type(bool), 'start_new_session': type(bool), 'group' : type(str), 'user' : type(str),  })
+        self.forwarder.check_params(**kwargs)
+
 
 class RunCommand:
-
     NO_TRACE=0
     TRACE_ON=1
     TRACE_WITH_TIMESTAMP=2
@@ -18,6 +44,11 @@ class RunCommand:
     def __init__(self, **kwargs):
         self.exit_code = 0
         self.command_line = ""
+
+        if 'env' in kwargs:
+            self.env = kwargs['env']
+        else:
+            self.env = None
 
         if 'use_shell' in kwargs:
             self.use_shell = kwargs['use_shell']
@@ -44,28 +75,43 @@ class RunCommand:
         else:
             self.convert_to_text = 'utf-8'
 
+        if 'close_fds' in kwargs:
+            self.close_fds = kwargs['trace_on']
+        else:
+            self.close_fds = False
+
+        if 'platform_option' in kwargs:
+            self.platform_option = kwargs['platform_option']
+            if not isinstance(self.platform_option, PlatformOptionsWindows) and not isinstance(self.platform_option, PlatformOptionsPosix):
+                print("invalid platform_option argument, must be either PlatformOptionsPosix or PlatformOptionsWindows")
+                raise TypeError("allowed types: PlatformOptionsWindows or PlatformOptionsPosix")
+        else:
+            self.platform_option = None
+
         self.output = None
         self.error_out = None
 
 
-    def run(self, command_line, in_arg = None, platform_option = None):
-
-        if platform_option is not None:
-            if not isinstance(platform_option, PlatformOptionsWindows) and not isinstance(platform_option, PlatformOptionsPosix):
-                print("invalid platform_option argument, must be either PlatformOptionsPosix or PlatformOptionsWindows")
-                raise TypeError("allowed types: PlatformOptionsWindows or PlatformOptionsPosix")
-
+    def run(self, command_line, in_arg = None):
         try:
             if self.trace_on:
-                print(self.__show_trace_prefix(), command_line)
+                print(self.__show_trace_prefix() + command_line)
+
+
+            if self.platform_option is not None:
+                args = self.platform_option.forwarder.args
+            else:
+                args = {}
 
             with subprocess.Popen(
-                shlex.split(command_line),
+                self.__cmd(command_line),
                 stdin=RunCommand.__stdin(in_arg),
-                close_fds=False,
+                close_fds=self.close_fds,
                 shell=self.use_shell,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
+                env = self.env,
+                **args
             ) as process:
 
                 self.command_line = command_line
@@ -88,9 +134,9 @@ class RunCommand:
                 if self.trace_on:
                     msg = self.__show_trace_prefix() + "exit_code: " + str(self.exit_code)
                     if self.output != "":
-                        msg += "\n  stdout: " + RunCommand.__output_rep(self.output)
+                        msg += "\n stdout:\n" + RunCommand.__output_rep(self.output)
                     if self.error_out != "":
-                        msg += "\n  stderr: " + RunCommand.__output_rep(self.error_out)
+                        msg += "\n  stderr:\n" + RunCommand.__output_rep(self.error_out)
                     print(msg)
 
                 if self.exit_on_error and self.exit_code != 0:
@@ -130,12 +176,11 @@ class RunCommand:
 
         return return_value
 
-    def __output_rep(rep):
-        if not rep is None:
-            if isinstance(rep,str):
-                return str(rep)
-            if isinstance(rep,bytes):
-                return bytes.hex(rep)
+    def __cmd(self, command_line):
+        if self.use_shell is None or not self.use_shell:
+            return shlex.split(command_line)
+        return command_line
+        #return shlex.quote(command_line)
 
     def __show_trace_prefix(self):
         if self.trace_on == RunCommand.TRACE_ON:
@@ -144,6 +189,15 @@ class RunCommand:
             now_time = datetime.now()
             return now_time.strftime("%Z%Y-%b-%d %H:%M:%S.%f> ")
         return ""
+
+    @staticmethod
+    def __output_rep(rep):
+        if not rep is None:
+            if isinstance(rep,str):
+                return str(rep)
+            if isinstance(rep,bytes):
+                return bytes.hex(rep)
+        return None
 
     @staticmethod
     def __stdin(arg):
@@ -158,4 +212,5 @@ class RunCommand:
                 return arg.encode("utf-8")
             if isinstance(arg,bytes):
                 return arg
-            raise TypeError("proceess input must be either string or bytes")
+            raise TypeError("process input must be either string or bytes")
+        return None
