@@ -17,7 +17,7 @@ The ```subb.RunCommand``` class is exported,  The ```RunCommand.run``` method ru
 
 The ```subb.RunCommand``` constructor is receiving options for each call to the ```run``` method.
 
-See the [test](https://github.com/MoserMichael/subby/blob/master/test.py) for example usages
+See the [test](https://github.com/MoserMichael/subb/blob/master/test.py) for example usages
 
 
 Now some examples:
@@ -72,7 +72,7 @@ The ```use_shell``` option is off by default, if you set it then the shell will 
 ```
         cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, use_shell = True, exit_on_error = True)
 
-        cmd.run("""find . -name "*.py" | grep -c subby.py""")
+        cmd.run("""find . -name "*.py" | grep -c subb.py""")
 
         print("shell output: ", cmd.output)
 ```
