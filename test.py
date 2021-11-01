@@ -7,6 +7,14 @@ import subby
 
 class TestSubby(unittest.TestCase):
 
+    def setUp(self):
+        sys.stdout.flush()
+        print("\n*** testing: ", self._testMethodName, "***\n")
+        sys.stdout.flush()
+
+    def tearDown(self):
+        sys.stdout.flush()
+
     def test_trace_on(self):
         cmd = subby.RunCommand(trace_on=subby.RunCommand.TRACE_WITH_TIMESTAMP)
 
@@ -15,6 +23,16 @@ class TestSubby(unittest.TestCase):
         cmd.run("openssl rand -hex 9")
 
         cmd.run("git ls-files")
+
+    def test_trace_on_logger(self):
+        cmd = subby.RunCommand(trace_on=subby.RunCommand.TRACE_WITH_TIMESTAMP|subby.RunCommand.TRACE_LOG_INFO)
+
+        cmd.run("ls -al")
+
+        cmd.run("openssl rand -hex 9")
+
+        cmd.run("git ls-files")
+
 
     def test_exit_on_error(self):
 
@@ -106,5 +124,6 @@ class TestSubby(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    #unittest.TestLoader.sortTestMethodsUsing = None
     unittest.main()
     print("*** eof test ***")

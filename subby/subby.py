@@ -1,8 +1,8 @@
 import shlex
 import subprocess
-import types
 from datetime import datetime
 import sys
+import logging
 
 class KwArgsForwarder:
 
@@ -40,6 +40,8 @@ class RunCommand:
     NO_TRACE=0
     TRACE_ON=2
     TRACE_WITH_TIMESTAMP=4
+    TRACE_LOG_INFO=8
+    TRACE_LOG_DEBUG=16
 
     def __init__(self, **kwargs):
         self.exit_code = 0
@@ -117,7 +119,7 @@ class RunCommand:
                 self.command_line = command_line
 
                 (output, error_out) = process.communicate(
-                        input=RunCommand.__input(in_arg), 
+                        input=RunCommand.__input(in_arg),
                         timeout=self.timeout_seconds)
 
                 self.exit_code = process.wait()
@@ -142,7 +144,7 @@ class RunCommand:
                     self.__print_trace(msg)
 
                 if self.exit_on_error and self.exit_code != 0:
-                    self.__print_trace(self.make_error_message())
+                    self.__print_trace(self.__make_error_message())
                     sys.exit(1)
 
                 return self.exit_code
@@ -164,7 +166,7 @@ class RunCommand:
     def result(self):
         return self.exit_code, self.output
 
-    def make_error_message(self):
+    def __make_error_message(self):
         return_value = ""
         if self.command_line != "":
             return_value += f" command line: {self.command_line}."
@@ -175,7 +177,6 @@ class RunCommand:
                 return_value += " " + self.error_out
             else:
                 return_value += " " + bytes.hex(self.error_out)
-
         return return_value
 
     def __cmd(self, command_line):
@@ -187,13 +188,18 @@ class RunCommand:
     def __show_trace_prefix(self):
         if self.trace_on == RunCommand.TRACE_ON:
             return "> "
-        if self.trace_on == RunCommand.TRACE_WITH_TIMESTAMP:
+        if self.trace_on & RunCommand.TRACE_WITH_TIMESTAMP != 0:
             now_time = datetime.now()
             return now_time.strftime("%Z%Y-%b-%d %H:%M:%S.%f> ")
         return ""
 
     def __print_trace(self, msg):
-        print(msg, file=sys.stderr)
+        if self.trace_on & RunCommand.TRACE_LOG_INFO != 0:
+            logging.info(msg)
+        elif self.trace_on & RunCommand.TRACE_LOG_DEBUG != 0:
+            logging.debug(msg)
+        else:
+            print(msg, file=sys.stderr)
 
     @staticmethod
     def __output_rep(rep):
