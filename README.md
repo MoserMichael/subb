@@ -12,7 +12,7 @@ The ```subb.RunCommand``` class is exported,  The ```RunCommand.run``` method ru
 
 The ```subb.RunCommand``` constructor is receiving options for each call to the ```run``` method.
 
-See the [test](https://github.com/MoserMichael/subb/blob/master/test.py) for example usages
+See the [test](https://github.com/MoserMichael/subby;/blob/master/test.py) for example usages
 
 
 
