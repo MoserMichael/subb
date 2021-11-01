@@ -17,6 +17,7 @@ class TestSubby(unittest.TestCase):
         cmd.run("git ls-files")
 
     def test_exit_on_error(self):
+
         cmd = subby.RunCommand(trace_on=subby.RunCommand.TRACE_ON, exit_on_error = True)
 
         cmd.run("git branch -vv")

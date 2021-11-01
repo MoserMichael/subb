@@ -38,8 +38,8 @@ class PlatformOptionsPosix:
 
 class RunCommand:
     NO_TRACE=0
-    TRACE_ON=1
-    TRACE_WITH_TIMESTAMP=2
+    TRACE_ON=2
+    TRACE_WITH_TIMESTAMP=4
 
     def __init__(self, **kwargs):
         self.exit_code = 0
@@ -139,24 +139,24 @@ class RunCommand:
                         msg += "\n stdout:\n" + RunCommand.__output_rep(self.output)
                     if self.error_out != "":
                         msg += "\n  stderr:\n" + RunCommand.__output_rep(self.error_out)
-                    print(msg)
+                    self.__print_trace(msg)
 
                 if self.exit_on_error and self.exit_code != 0:
-                    print(self.make_error_message())
+                    self.__print_trace(self.make_error_message())
                     sys.exit(1)
 
                 return self.exit_code
 
         except subprocess.TimeoutExpired as exception:
             if self.trace_on:
-                print(self.__show_trace_prefix() + "Timeout exception: " + str(exception))
+                self.__print_trace(self.__show_trace_prefix() + "Timeout exception: " + str(exception))
             raise
         except FileNotFoundError:
             self.output = ""
             self.error_out = "file not found"
 
             if self.trace_on:
-                print(self.__show_trace_prefix() + "file not found error")
+                self.__print_trace(self.__show_trace_prefix() + "file not found error")
 
             self.exit_code = 1
             return self.exit_code
@@ -191,6 +191,9 @@ class RunCommand:
             now_time = datetime.now()
             return now_time.strftime("%Z%Y-%b-%d %H:%M:%S.%f> ")
         return ""
+
+    def __print_trace(self, msg):
+        print(msg, file=sys.stderr)
 
     @staticmethod
     def __output_rep(rep):
