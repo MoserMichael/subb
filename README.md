@@ -14,7 +14,9 @@ The ```subb.RunCommand``` constructor is receiving options for each call to the 
 
 See the [test](https://github.com/MoserMichael/subby;/blob/master/test.py) for example usages
 
+## install it
 
+```pip3 install subb```
 
 
 
