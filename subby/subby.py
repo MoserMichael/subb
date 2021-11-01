@@ -116,7 +116,9 @@ class RunCommand:
 
                 self.command_line = command_line
 
-                (output, error_out) = process.communicate(input=RunCommand.__input(in_arg), timeout=self.timeout_seconds)
+                (output, error_out) = process.communicate(
+                        input=RunCommand.__input(in_arg), 
+                        timeout=self.timeout_seconds)
 
                 self.exit_code = process.wait()
                 if self.convert_to_text is not None:

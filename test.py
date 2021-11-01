@@ -2,6 +2,7 @@
 import os
 import unittest
 import sys
+import subprocess
 import subby
 
 class TestSubby(unittest.TestCase):
@@ -88,6 +89,19 @@ class TestSubby(unittest.TestCase):
 
         print("posix test output: ", cmd.output)
         self.assertTrue(cmd.output == "message from parent: " + key + "\n")
+
+    def test_timeout(self):
+        cmd = subby.RunCommand(trace_on=subby.RunCommand.TRACE_WITH_TIMESTAMP, timeout_sec=7)
+
+        got_timeout = False
+        try:
+            cmd.run("python3 stuck.py")
+        except subprocess.TimeoutExpired as exc:
+            print("got timeout exception: ", exc)
+            got_timeout = True
+
+        self.assertTrue(got_timeout)
+
 
 
 if __name__ == '__main__':
