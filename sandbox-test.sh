@@ -9,8 +9,9 @@ pushd tst
 virtualenv my-venv
 source my-venv/bin/activate
 
-pip3 install subb
-python3 ../test.py
+pip3 install subb 
+cp ../*.py .
+python3 ./test.py
 
 echo "everything is fine. test passed"
 
