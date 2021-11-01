@@ -5,7 +5,7 @@ import sys
 import subprocess
 import subb
 
-class TestSubby(unittest.TestCase):
+class TestSubb(unittest.TestCase):
 
     def setUp(self):
         sys.stdout.flush()
@@ -83,7 +83,7 @@ class TestSubby(unittest.TestCase):
 
         cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, use_shell = True, exit_on_error = True)
 
-        cmd.run("""find . -name "*.py" | grep -c subb.py""")
+        cmd.run("""find . -name "*.py" | grep -c subby.py""")
 
         print("shell output: ", cmd.output)
         self.assertTrue( cmd.output.rstrip() == "1" )
