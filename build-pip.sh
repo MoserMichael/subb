@@ -8,7 +8,7 @@ git clean -f -d
 mkdir -p staging_dir/src/subb
 mkdir -p staging_dir/tests
 
-cp test.py staging_dir/tests
+cp *.py staging_dir/tests
 cp subb/*.py staging_dir/src/subb
 cp requirements.txt staging_dir/
 cp LICENSE.txt README.md staging_dir
