@@ -3,7 +3,7 @@ import os
 import unittest
 import sys
 import subprocess
-import subby
+import subb
 
 class TestSubby(unittest.TestCase):
 
@@ -16,7 +16,7 @@ class TestSubby(unittest.TestCase):
         sys.stdout.flush()
 
     def test_trace_on(self):
-        cmd = subby.RunCommand(trace_on=subby.RunCommand.TRACE_WITH_TIMESTAMP)
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_WITH_TIMESTAMP)
 
         cmd.run("ls -al")
 
@@ -25,7 +25,7 @@ class TestSubby(unittest.TestCase):
         cmd.run("git ls-files")
 
     def test_trace_on_logger(self):
-        cmd = subby.RunCommand(trace_on=subby.RunCommand.TRACE_WITH_TIMESTAMP|subby.RunCommand.TRACE_LOG_INFO)
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_WITH_TIMESTAMP|subb.RunCommand.TRACE_LOG_INFO)
 
         cmd.run("ls -al")
 
@@ -36,7 +36,7 @@ class TestSubby(unittest.TestCase):
 
     def test_exit_on_error(self):
 
-        cmd = subby.RunCommand(trace_on=subby.RunCommand.TRACE_ON, exit_on_error = True)
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, exit_on_error = True)
 
         cmd.run("git branch -vv")
 
@@ -52,7 +52,7 @@ class TestSubby(unittest.TestCase):
         self.assertTrue(got_exit)
 
     def test_binary_in_out(self):
-        cmd = subby.RunCommand(trace_on=subby.RunCommand.TRACE_ON, exit_on_error = True, convert_to_text = None)
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, exit_on_error = True, convert_to_text = None)
 
         in_plain = b'123123'
 
@@ -71,7 +71,7 @@ class TestSubby(unittest.TestCase):
 
     def test_binary_out(self):
 
-        cmd = subby.RunCommand(trace_on=subby.RunCommand.TRACE_ON, exit_on_error = True, convert_to_text = None)
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, exit_on_error = True, convert_to_text = None)
 
         cmd.run("openssl rand 16")
 
@@ -81,9 +81,9 @@ class TestSubby(unittest.TestCase):
 
     def test_use_shell(self):
 
-        cmd = subby.RunCommand(trace_on=subby.RunCommand.TRACE_ON, use_shell = True, exit_on_error = True)
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, use_shell = True, exit_on_error = True)
 
-        cmd.run("""find . -name "*.py" | grep -c subby.py""")
+        cmd.run("""find . -name "*.py" | grep -c subb.py""")
 
         print("shell output: ", cmd.output)
         self.assertTrue( cmd.output.rstrip() == "1" )
@@ -102,15 +102,15 @@ class TestSubby(unittest.TestCase):
 
         env = {**os.environ, "read_fd": str(read_end)}
 
-        posix_opts = subby.PlatformOptionsPosix( pass_fds=(read_end,) )
-        cmd = subby.RunCommand(trace_on=subby.RunCommand.TRACE_ON, platform_option=posix_opts, env=env)
+        posix_opts = subb.PlatformOptionsPosix( pass_fds=(read_end,) )
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, platform_option=posix_opts, env=env)
         cmd.run("python3 read.py")
 
         print("posix test output: ", cmd.output)
         self.assertTrue(cmd.output == "message from parent: " + key + "\n")
 
     def test_timeout(self):
-        cmd = subby.RunCommand(trace_on=subby.RunCommand.TRACE_WITH_TIMESTAMP, timeout_sec=7)
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_WITH_TIMESTAMP, timeout_sec=7)
 
         got_timeout = False
         try:

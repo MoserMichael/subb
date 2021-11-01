@@ -11,14 +11,14 @@ install_requires = list(filter(lambda x: x[0:1] != "#", install_requires))
 print("install-requires:", install_requires)
 
 setuptools.setup(
-    name = "subby",
+    name = "subb",
     version = "1.0.0",
     author = "Michael Moser",
     author_email = "moser.michael@gmail.com",
-    description = ("subby is a wrapper for python subprocess module"),
+    description = ("subb is a wrapper for python subprocess module"),
     license = "MIT",
     keywords = "utility",
-    url = "https://github.com/MoserMichael/subby",
+    url = "https://github.com/MoserMichael/subb",
     package_dir={'': 'src'},
     packages=setuptools.find_packages("src"),
     long_description=read('README.md'),

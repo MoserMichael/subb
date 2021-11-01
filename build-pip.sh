@@ -5,11 +5,11 @@ set -ex
 # remove files not under git
 git clean -f -d
 
-mkdir -p staging_dir/src/subby
+mkdir -p staging_dir/src/subb
 mkdir -p staging_dir/tests
 
 cp test.py staging_dir/tests
-cp subby/*.py staging_dir/src/subby
+cp subb/*.py staging_dir/src/subb
 cp requirements.txt staging_dir/
 cp LICENSE.txt README.md staging_dir
 cp pip-build/* staging_dir
