@@ -4,9 +4,6 @@ import unittest
 import sys
 import subby
 
-def show_pid():
-    print("subprocess pid: ", os.getpid())
-
 class TestSubby(unittest.TestCase):
 
     def test_trace_on(self):
