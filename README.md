@@ -97,16 +97,26 @@ Platform specific options held in either ```subb.PlatformOptionsPosix``` or ```s
 
 
 ```
-        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_WITH_TIMESTAMP, timeout_sec=7)
+        if sys.platform not in ("linux", "darwin"):
+            return
 
-        got_timeout = False
-        try:
-            cmd.run("python3 stuck.py")
-        except subprocess.TimeoutExpired as exc:
-            print("got timeout exception: ", exc)
-            got_timeout = True
+        key = "secret secret"
+        read_end, write_end = os.pipe()
+        os.write(write_end, bytes(key, encoding='utf-8'))
+        os.close(write_end)
+        os.set_inheritable(read_end, True)
 
-        self.assertTrue(got_timeout)
+        print("parent read_fd: ", read_end)
+
+        env = {**os.environ, "read_fd": str(read_end)}
+
+        posix_opts = subb.PlatformOptionsPosix( pass_fds=(read_end,) )
+        cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, platform_option=posix_opts, env=env)
+        cmd.run("python3 read.py")
+
+        print("posix test output: ", cmd.output)
+        self.assertTrue(cmd.output == "message from parent: " + key + "\n")
+
 ```
 
 
