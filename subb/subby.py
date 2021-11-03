@@ -85,8 +85,7 @@ class RunCommand:
         if 'platform_option' in kwargs:
             self.platform_option = kwargs['platform_option']
             if not isinstance(self.platform_option, PlatformOptionsWindows) and not isinstance(self.platform_option, PlatformOptionsPosix):
-                print("invalid platform_option argument, must be either PlatformOptionsPosix or PlatformOptionsWindows")
-                raise TypeError("allowed types: PlatformOptionsWindows or PlatformOptionsPosix")
+                raise TypeError("invalid platform_option argument, must be either PlatformOptionsPosix or PlatformOptionsWindows")
         else:
             self.platform_option = None
 
@@ -97,7 +96,7 @@ class RunCommand:
     def run(self, command_line, in_arg = None):
         try:
             if self.trace_on:
-                print(self.__show_trace_prefix() + command_line)
+                self.__print_trace(self.__show_trace_prefix() + command_line)
 
 
             if self.platform_option is not None:

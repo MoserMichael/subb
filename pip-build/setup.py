@@ -12,7 +12,7 @@ print("install-requires:", install_requires)
 
 setuptools.setup(
     name = "subb",
-    version = "1.0.3",
+    version = "1.0.5",
     author = "Michael Moser",
     author_email = "moser.michael@gmail.com",
     description = ("subb is a wrapper for python subprocess module"),
