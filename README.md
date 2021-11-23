@@ -67,7 +67,7 @@ Option ```convert_to_text``` is by default on, the output is converted to text (
 
 ```
 
-The ```use_shell``` option is off by default, if you set it then the shell will be used to run the command
+The ```use_shell``` option is off by default, if you set it then the shell will be used to run the command. If you need to connect several commands via a pipe, then you need to run this wth the ```use_shell``` option on.
 
 ```
         cmd = subb.RunCommand(trace_on=subb.RunCommand.TRACE_ON, use_shell = True, exit_on_error = True)
