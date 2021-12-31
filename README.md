@@ -77,6 +77,14 @@ The ```use_shell``` option is off by default, if you set it then the shell will 
         print("shell output: ", cmd.output)
 ```
 
+You can redirect stderr to stdout and get both of them in one string:
+
+```
+        cmd = subb.RunCommand(stderr_as_stdout=True)
+        cmd.run("bash -x fac.sh")
+        print("stderr and stdout:", cmd.output)
+```
+
 By default there is no timeout, but you can set one with the ```timeout_sec``` option
 
 ```

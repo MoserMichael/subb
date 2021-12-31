@@ -92,6 +92,15 @@ class TestSubb(unittest.TestCase):
         print("shell output: ", cmd.output)
         self.assertTrue( cmd.output.rstrip() == "1" )
 
+    def test_stderr_stdout(self):
+        # is bash available on windows? not sure.
+        if sys.platform not in ("linux", "darwin"):
+            return
+
+        cmd = subb.RunCommand(stderr_as_stdout=True)
+        cmd.run("bash -x fac.sh")
+        print("stderr and stdout:", cmd.output)
+
     def test_posix(self):
         if sys.platform not in ("linux", "darwin"):
             return
