@@ -109,6 +109,7 @@ class RunCommand:
                 args = {}
 
             if not self.stderr_as_stdout:
+
                 with subprocess.Popen(
                     self.__cmd(command_line),
                     stdin=RunCommand.__stdin(in_arg),
@@ -121,6 +122,10 @@ class RunCommand:
                 ) as process:
 
                     self.command_line = command_line
+
+                    if not in_arg is None:
+                        msg = self.__show_trace_prefix() + " stdin: " + RunCommand.__output_rep(in_arg)
+                        self.__print_trace(msg)
 
                     (output, error_out) = process.communicate(
                             input=RunCommand.__input(in_arg),
@@ -190,7 +195,7 @@ class RunCommand:
                         self.__print_trace(self.__make_error_message())
                         sys.exit(1)
 
-                return self.exit_code
+            return self.exit_code
 
         except subprocess.TimeoutExpired as exception:
             if self.trace_on:
