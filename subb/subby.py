@@ -123,7 +123,7 @@ class RunCommand:
 
                     self.command_line = command_line
 
-                    if not in_arg is None:
+                    if self.trace_on and not in_arg is None:
                         msg = self.__show_trace_prefix() + " stdin: " + RunCommand.__output_rep(in_arg)
                         self.__print_trace(msg)
 
